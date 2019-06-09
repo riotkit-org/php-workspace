@@ -8,6 +8,7 @@ ENV_UID := $(shell id -u)
 ENV_GID := $(shell id -g)
 IMAGE=wordpress:${VERSION}
 COMPOSE=ENV_UID=${ENV_UID} ENV_GID=${ENV_GID} IMAGE=${IMAGE} docker-compose -p ${NAME}
+_FTP_DEPLOY_EXCLUDE="${FTP_DEPLOY_EXCLUDE} "
 
 ifeq ($(IS_ENV_PRESENT), yes)
 	include .env
@@ -47,6 +48,7 @@ logs:
 
 ## Deploy to a remote FTP server
 deploy:
+	set -e; \
 	for file in ./workspace/*; do \
 		make _sendfile FILE=$${file}; \
 	done
@@ -61,5 +63,16 @@ watch_and_deploy_on_change:
 _sendfile:
 	echo " >> Sending ${FILE}"; \
 	FILE_PATH=$$(dirname ${FILE}); \
+	FILE_NAME=$$(basename ${FILE}); \
 	REMOTE_PATH="${FTP_PATH}/$${FILE_PATH/.\/workspace/}/"; \
-	lftp -e "set ssl:verify-certificate no; open -u ${FTP_USER},${FTP_PASSWORD} ftp://${FTP_HOST}/$${REMOTE_PATH}; put ${FILE}; exit;"
+	\
+	if [[ ${_FTP_DEPLOY_EXCLUDE} =~ "$${FILE_NAME}" ]]; then \
+		echo " >> ${FILE} is ignored, skipping..."; \
+		exit 0; \
+	fi; \
+	\
+	if [[ -f ${FILE} ]]; then \
+		exec lftp -e "set ssl:verify-certificate no; open -u ${FTP_USER},${FTP_PASSWORD} ftp://${FTP_HOST}/$${REMOTE_PATH}; put ${FILE}; exit;"; \
+	else \
+		exec lftp -e "set ssl:verify-certificate no; open -u ${FTP_USER},${FTP_PASSWORD} ftp://${FTP_HOST}/${FTP_PATH}; mirror -R ${FILE} $${REMOTE_PATH}/$${FILE_NAME} ; exit;"; \
+	fi

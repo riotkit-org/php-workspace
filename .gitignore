@@ -3,3 +3,5 @@
 /workspace/*
 !/workspace/.gitkeep
 /.env
+/database/*
+!/database/.gitkeep

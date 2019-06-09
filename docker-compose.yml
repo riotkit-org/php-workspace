@@ -1,6 +1,6 @@
 version: "2"
 services:
-    wp:
+    app:
         image: workspace-php:${VERSION}
         build:
             context: .
@@ -13,6 +13,8 @@ services:
             - "9005:80"
         volumes:
             - ./workspace:/var/www/html
+        env_file:
+            - .env
         environment:
             - WORDPRESS_DB_HOST=db
             - WORDPRESS_DB_USER=test
@@ -21,6 +23,8 @@ services:
 
     db:
         image: mariadb
+        volumes:
+            - ./database:/var/lib/mysql
         environment:
             - MYSQL_USER=test
             - MYSQL_PASSWORD=test

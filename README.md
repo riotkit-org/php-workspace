@@ -18,6 +18,14 @@ A set of containers to develop PHP website based on a CMS eg. Wordpress, Joomla 
 - Joomla page development
 - Other app/cms plugin/theme development
 
+**Requirements:**
+- Linux-based operating system
+- Docker
+- Docker-Compose
+- GNU Makefile
+- inotifywait (inotify-tools package in most operating systems) (for automated sending of changed files to remote FTP)
+- lftp (for FTP deployments)
+
 ## Quick start
 
 ```

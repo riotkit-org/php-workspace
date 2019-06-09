@@ -1,0 +1,35 @@
+version: "2"
+services:
+    wp:
+        image: workspace-php:${VERSION}
+        build:
+            context: .
+            dockerfile: .infrastructure/Dockerfile
+            args:
+                IMAGE: ${IMAGE}
+                ENV_UID: ${ENV_UID}
+                ENV_GID: ${ENV_GID}
+        ports:
+            - "9005:80"
+        volumes:
+            - ./workspace:/var/www/html
+        environment:
+            - WORDPRESS_DB_HOST=db
+            - WORDPRESS_DB_USER=test
+            - WORDPRESS_DB_PASSWORD=test
+            - WORDPRESS_DB_NAME=wp
+
+    db:
+        image: mariadb
+        environment:
+            - MYSQL_USER=test
+            - MYSQL_PASSWORD=test
+            - MYSQL_DATABASE=wp
+            - MYSQL_ROOT_PASSWORD=root
+
+    db_admin:
+        image: phpmyadmin/phpmyadmin
+        ports:
+            - "9006:80"
+        environment:
+            - PMA_HOST=db

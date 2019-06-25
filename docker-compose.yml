@@ -13,6 +13,7 @@ services:
             - "9005:80"
         volumes:
             - ./workspace:/var/www/html
+            - .infrastructure/php.ini:/usr/local/etc/php/conf.d/uploads.ini
         env_file:
             - .env
         environment:
